@@ -9,6 +9,36 @@ import java.util.List;
 
 public class DataRetriever {
 
+
+
+    public List<VoteTypeCount> countVotesByType() {
+        List<VoteTypeCount> results = new ArrayList<>();
+        String sql = """
+        SELECT vote_type, COUNT(id) AS total_count
+        FROM vote
+        GROUP BY vote_type
+    """;
+        DBConnection dbConnection = new DBConnection();
+
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String typeFromDb = rs.getString("vote_type");
+                VoteTypes type = VoteTypes.valueOf(typeFromDb);
+
+                long count = rs.getLong("total_count");
+                results.add(new VoteTypeCount(type, count));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur Q2 : " + e.getMessage());
+        }
+
+        return results;
+    }
+
     public long countAllVotes() {
         long total = 0;
 
