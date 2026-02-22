@@ -10,6 +10,39 @@ import java.util.List;
 public class DataRetriever {
 
 
+    public List<CandidateVoteCount> countValidVotesByCandidate() {
+        List<CandidateVoteCount> results = new ArrayList<>();
+        String sql = """
+    SELECT c.name AS candidate_name, 
+           COUNT(v.id) FILTER (WHERE v.vote_type = 'VALID') AS valid_votes
+    FROM candidate c
+    LEFT JOIN vote v ON v.candidate_id = c.id
+    GROUP BY c.id, c.name
+    ORDER BY valid_votes DESC
+    
+""";
+
+        DBConnection dbConnection = new DBConnection();
+
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                // Extraction des données calculées par la jointure
+                String name = rs.getString("candidate_name");
+                long count = rs.getLong("valid_votes");
+
+                // Création de l'objet DTO CandidateVoteCount
+                results.add(new CandidateVoteCount(name, count));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur Q3 : " + e.getMessage());
+        }
+
+        return results;
+    }
 
     public List<VoteTypeCount> countVotesByType() {
         List<VoteTypeCount> results = new ArrayList<>();
