@@ -1,17 +1,33 @@
 package org.spring;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        DataRetriever retriever = new DataRetriever();
+//        long totalVotes = retriever.countAllVotes();
+//        System.out.println("Total Votes : " + totalVotes);
+//        List<CandidateVoteCount> candidateScores = retriever.countValidVotesByCandidate();
+//        for (CandidateVoteCount cvc : candidateScores) {
+//            System.out.println(cvc);
+//        }
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+//        VoteSummary summary = retriever.computeVoteSummary();
+//        System.out.println(summary);
+
+//
+//        double turnoutRate = retriever.computeTurnoutRate();
+//        System.out.println("Taux de participation : " + turnoutRate + "%");
+
+//        List<VoteTypeCount> counts = retriever.countVotesByType();
+//        System.out.println(counts);
+
+
+        ElectionWinner winner = retriever.findWinner();
+        if (winner != null) {
+            System.out.println(winner);
+        } else {
+            System.out.println("No valid winner found.");
         }
-    }
+        }
 }

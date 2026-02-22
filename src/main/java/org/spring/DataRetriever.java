@@ -9,7 +9,57 @@ import java.util.List;
 
 public class DataRetriever {
 
+    public ElectionWinner findWinner() {
+        ElectionWinner winner = null;
 
+        String sql = """
+        SELECT c.name, COUNT(v.id) AS total_votes
+        FROM vote v
+        JOIN candidate c ON v.candidate_id = c.id
+        WHERE v.vote_type = 'VALID'
+        GROUP BY c.id, c.name
+        ORDER BY total_votes DESC
+        LIMIT 1
+    """;
+
+        DBConnection dbConnection = new DBConnection();
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                winner = new ElectionWinner(
+                        rs.getString("name"),
+                        rs.getLong("total_votes")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur Q6 : " + e.getMessage());
+        }
+        return winner;
+    }
+
+    public double computeTurnoutRate() {
+        double rate = 0.0;
+
+        String sql = """
+        SELECT (COUNT(v.id) * 100.0 / (SELECT COUNT(id) FROM voter)) AS rate
+        FROM vote v
+    """;
+
+        DBConnection dbConnection = new DBConnection();
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                rate = rs.getDouble("rate");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur Q5 : " + e.getMessage());
+        }
+        return rate;
+    }
 
     public VoteSummary computeVoteSummary() {
         VoteSummary summary = null;
