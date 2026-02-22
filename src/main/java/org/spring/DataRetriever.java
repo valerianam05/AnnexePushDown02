@@ -10,6 +10,36 @@ import java.util.List;
 public class DataRetriever {
 
 
+
+    public VoteSummary computeVoteSummary() {
+        VoteSummary summary = null;
+
+        String sql = """
+        SELECT 
+            COUNT(id) FILTER (WHERE vote_type = 'VALID') AS valid_count,
+            COUNT(id) FILTER (WHERE vote_type = 'BLANK') AS blank_count,
+            COUNT(id) FILTER (WHERE vote_type = 'NULL') AS null_count
+        FROM vote
+    """;
+
+        DBConnection dbConnection = new DBConnection();
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                summary = new VoteSummary(
+                        rs.getLong("valid_count"),
+                        rs.getLong("blank_count"),
+                        rs.getLong("null_count")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur Q4 : " + e.getMessage());
+        }
+        return summary;
+    }
+
     public List<CandidateVoteCount> countValidVotesByCandidate() {
         List<CandidateVoteCount> results = new ArrayList<>();
         String sql = """
